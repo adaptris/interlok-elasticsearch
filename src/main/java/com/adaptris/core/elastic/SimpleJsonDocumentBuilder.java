@@ -27,6 +27,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * <li>{@code content} contains the message payload (as a String)</li>
  * <li>{@code metadata} all the metadata (removing illegal values, such as metadata keys with '.' in them</li>
  * <li>{@code date} contains the current date/time</li>
+ * <li>The message's uniqueID is used as the ID of the document.
  * </ul>
  * </p>
  * 

@@ -1,8 +1,5 @@
 package com.adaptris.core.elastic;
 
-import java.io.IOException;
-import java.util.Iterator;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -93,23 +90,6 @@ public class IndexDocuments extends ElasticSearchProducer {
     this.documentBuilder = b;
   }
 
-  private <E> CloseableIterable<E> ensureCloseable(final Iterable<E> iter) {
-    if (iter instanceof CloseableIterable) {
-      return (CloseableIterable<E>) iter;
-    }
-
-    return new CloseableIterable<E>() {
-      @Override
-      public void close() throws IOException {
-        // No-op
-      }
-
-      @Override
-      public Iterator<E> iterator() {
-        return iter.iterator();
-      }
-    };
-  }
 
 
 }

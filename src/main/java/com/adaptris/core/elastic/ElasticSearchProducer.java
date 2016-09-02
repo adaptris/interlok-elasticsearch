@@ -1,11 +1,12 @@
 package com.adaptris.core.elastic;
 
-import static com.adaptris.core.http.HttpConstants.DEFAULT_SOCKET_TIMEOUT;
-
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 import com.adaptris.core.CoreException;
 import com.adaptris.core.RequestReplyProducerImp;
+import com.adaptris.core.services.splitter.CloseableIterable;
 import com.adaptris.util.TimeInterval;
 
 /**
@@ -48,5 +49,23 @@ public abstract class ElasticSearchProducer extends RequestReplyProducerImp {
 
   protected long defaultTimeout() {
     return TIMEOUT.toMilliseconds();
+  }
+
+  protected static <E> CloseableIterable<E> ensureCloseable(final Iterable<E> iter) {
+    if (iter instanceof CloseableIterable) {
+      return (CloseableIterable<E>) iter;
+    }
+
+    return new CloseableIterable<E>() {
+      @Override
+      public void close() throws IOException {
+        // No-op
+      }
+
+      @Override
+      public Iterator<E> iterator() {
+        return iter.iterator();
+      }
+    };
   }
 }

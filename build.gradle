@@ -51,8 +51,8 @@ configurations {
 dependencies {
   compile ("com.adaptris:adp-core:$adpCoreVersion") { changing= true}
   compile ("org.slf4j:slf4j-api:$slf4jVersion")
+  compile ("com.adaptris:adp-simple-csv:$adpCoreVersion") { changing=true}
   compile ("org.elasticsearch:elasticsearch:2.3.5")
-  compile ("net.sf.supercsv:super-csv:2.4.0")
   
   testCompile ('junit:junit:4.11')
   testCompile ("com.adaptris:adp-stubs:$adpCoreVersion") { changing= true}
