@@ -5,7 +5,6 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -70,16 +69,6 @@ public class CSVWithGeoPointBuilder extends CSVDocumentBuilderImpl {
       super(p);
       headers = buildHeaders(csvIterator.next());
       latLong = new LatLongHandler(headers);
-    }
-
-    @Override
-    public Iterator<DocumentWrapper> iterator() {
-      return this;
-    }
-
-    @Override
-    public boolean hasNext() {
-      return csvIterator.hasNext();
     }
 
     @Override
