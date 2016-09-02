@@ -30,7 +30,7 @@ public class IndexDocumentTest extends ProducerCase {
 
     IndexDocuments producer = new IndexDocuments();
     producer.setDestination(new ConfiguredProduceDestination("myType"));
-    producer.setDocumentBuilder(new SimpleJsonDocumentBuilder());
+    producer.setDocumentBuilder(new SimpleDocumentBuilder());
     return new StandaloneProducer(esc, producer);
   }
 

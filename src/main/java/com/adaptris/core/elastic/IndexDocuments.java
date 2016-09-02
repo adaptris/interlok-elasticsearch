@@ -38,7 +38,7 @@ public class IndexDocuments extends ElasticSearchProducer {
   private ElasticDocumentBuilder documentBuilder;
 
   public IndexDocuments() {
-    setDocumentBuilder(new SimpleJsonDocumentBuilder());
+    setDocumentBuilder(new SimpleDocumentBuilder());
   }
 
   public void produce(AdaptrisMessage msg, ProduceDestination destination) throws ProduceException {

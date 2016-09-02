@@ -18,7 +18,7 @@ public class SimpleJsonDocumentBuilderTest {
   public void testBuild() throws Exception {
     AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage("Hello World");
     msg.addMetadata(testName.getMethodName(), testName.getMethodName());
-    SimpleJsonDocumentBuilder documentBuilder = new SimpleJsonDocumentBuilder();
+    SimpleDocumentBuilder documentBuilder = new SimpleDocumentBuilder();
     int count = 0;
     try (CloseableIterable<DocumentWrapper> docs = ElasticSearchProducer.ensureCloseable(documentBuilder.build(msg))) {
       for (DocumentWrapper doc : docs) {

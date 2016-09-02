@@ -31,7 +31,7 @@ public class BulkIndexDocumentTest extends ProducerCase {
     BulkIndexDocuments producer = new BulkIndexDocuments();
     producer.setBatchWindow(1000);
     producer.setDestination(new ConfiguredProduceDestination("myType"));
-    producer.setDocumentBuilder(new SimpleJsonDocumentBuilder());
+    producer.setDocumentBuilder(new SimpleDocumentBuilder());
     return new StandaloneProducer(esc, producer);
   }
 

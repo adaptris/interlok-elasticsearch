@@ -36,7 +36,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  *
  */
 @XStreamAlias("elasticsearch-simple-document-builder")
-public class SimpleJsonDocumentBuilder implements ElasticDocumentBuilder {
+public class SimpleDocumentBuilder implements ElasticDocumentBuilder {
 
   private transient Logger log = LoggerFactory.getLogger(this.getClass());
 
