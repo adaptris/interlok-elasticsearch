@@ -26,7 +26,7 @@ def versionDir = "$buildDir/version"
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-  maven { url "http://localhost:8081/nexus/content/groups/public" }
+  maven { url "http://localhost:8081/content/groups/public" }
   maven { url "https://development.adaptris.net/nexus/content/groups/public" }
   maven {
     credentials {
@@ -50,12 +50,12 @@ configurations {
 
 dependencies {
   compile ("com.adaptris:adp-core:$adpCoreVersion") { changing= true}
-  compile ("com.adaptris:adp-licensing:$adpCoreVersion") { changing= true}
   compile ("org.slf4j:slf4j-api:$slf4jVersion")
-  compile ("org.elasticsearch:elasticsearch:2.1.0")
+  compile ("org.elasticsearch:elasticsearch:2.3.5")
+  compile ("net.sf.supercsv:super-csv:2.4.0")
+  
   testCompile ('junit:junit:4.11')
   testCompile ("com.adaptris:adp-stubs:$adpCoreVersion") { changing= true}
-  testCompile ("com.adaptris:adp-licensing-stub:$adpCoreVersion") { changing= true}
 
   javadoc("com.adaptris:adp-core-apt:$adpCoreVersion") { changing= true}
 }
