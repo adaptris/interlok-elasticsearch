@@ -4,11 +4,11 @@ import com.adaptris.core.ServiceCase;
 import com.adaptris.util.KeyValuePair;
 import com.adaptris.util.KeyValuePairSet;
 
-public class SimpleElasticSearchIndexTest extends ServiceCase {
+public class IndexDocumentTest extends ServiceCase {
 
   private static final String EXAMPLE_COMMENT_HEADER = "\n<!--" + "\n-->\n";
 
-  public SimpleElasticSearchIndexTest(String name) {
+  public IndexDocumentTest(String name) {
     super(name);
   }
 
