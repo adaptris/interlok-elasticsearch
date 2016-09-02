@@ -42,20 +42,21 @@ public class BulkIndexDocuments extends IndexDocuments {
     try {
       final String type = destination.getDestination(msg);
       final String index = retrieveConnection(ElasticSearchConnection.class).getIndex();
-      BulkRequestBuilder bulk = transportClient.prepareBulk();
+      BulkRequestBuilder bulkRequest = transportClient.prepareBulk();
       try (CloseableIterable<DocumentWrapper> docs = ensureCloseable(getDocumentBuilder().build(msg))) {
         int count = 0;
         for (DocumentWrapper doc : docs) {
           count++;
-          bulk.add(transportClient.prepareIndex(index, type, doc.uniqueId()).setSource(doc.content()));
+          bulkRequest.add(transportClient.prepareIndex(index, type, doc.uniqueId()).setSource(doc.content()));
           if (count >= batchWindow()) {
-            doSend(bulk);
-            bulk = transportClient.prepareBulk();
+            doSend(bulkRequest);
+            count = 0;
+            bulkRequest = transportClient.prepareBulk();
           }
         }
       }
-      if (bulk.numberOfActions() > 0) {
-        doSend(bulk);
+      if (bulkRequest.numberOfActions() > 0) {
+        doSend(bulkRequest);
       }
     }
     catch (Exception e) {
@@ -64,11 +65,13 @@ public class BulkIndexDocuments extends IndexDocuments {
     return msg;
   }
 
-  private void doSend(BulkRequestBuilder bulk) throws Exception {
-    BulkResponse response = bulk.get();
+  private void doSend(BulkRequestBuilder bulkRequest) throws Exception {
+    int count = bulkRequest.numberOfActions();
+    BulkResponse response = bulkRequest.get();
     if (response.hasFailures()) {
       throw new ProduceException(response.buildFailureMessage());
     }
+    log.trace("Producing batch of {} actions took {}", count, response.getTook().toString());
     return;
   }
 
