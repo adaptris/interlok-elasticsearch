@@ -1,5 +1,6 @@
 package com.adaptris.core.elastic;
 
+import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 import java.io.IOException;
@@ -133,9 +134,13 @@ public class CSVDocumentBuilder implements ElasticDocumentBuilder {
   private List<String> buildHeaders(CSVRecord hdrRec) {
     List<String> result = new ArrayList<>();
     for (String hdrValue : hdrRec) {
-      result.add(hdrValue);
+      result.add(safeName(hdrValue));
     }
     return result;
+  }
+
+  private String safeName(String input) {
+    return defaultIfBlank(input, "").trim().replaceAll(" ", "_");
   }
 
   private class CSVDocumentWrapper implements CloseableIterable<DocumentWrapper>, Iterator {

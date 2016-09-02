@@ -30,7 +30,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("elasticsearch-index-document")
 public class IndexDocuments extends ElasticSearchProducer {
 
-  private transient TransportClient transportClient = null;
+  protected transient TransportClient transportClient = null;
 
   @Valid
   @NotNull

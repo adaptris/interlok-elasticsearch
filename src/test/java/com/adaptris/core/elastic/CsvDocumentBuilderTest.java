@@ -30,6 +30,7 @@ public class CsvDocumentBuilderTest {
       for (DocumentWrapper doc : docs) {
         count++;
         assertEquals("Record" + count, doc.uniqueId());
+        System.out.println(doc.content().string());
       }
     }
     assertEquals(3, count);
