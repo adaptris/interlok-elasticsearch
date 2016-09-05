@@ -5,6 +5,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -37,16 +38,17 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("elasticsearch-csv-geopoint-document-builder")
 public class CSVWithGeoPointBuilder extends CSVDocumentBuilderImpl {
 
-  private static final List<String> LATITUDE = Arrays.asList(new String[]
+  private static final List<String> LATITUDE = Collections.unmodifiableList(Arrays.asList(new String[]
   {
       "latitude", "lat"
-  });
-  private static final List<String> LONGITUDE = Arrays.asList(new String[]
+  }));
+  private static final List<String> LONGITUDE = Collections.unmodifiableList(Arrays.asList(new String[]
   {
       "longitude", "lon",
-  });
+  }));
 
-  private static final List<String> LAT_OR_LONG = new ArrayList<>(CollectionUtils.union(LATITUDE, LONGITUDE));
+  private static final List<String> LAT_OR_LONG =
+      Collections.unmodifiableList(new ArrayList<String>(CollectionUtils.union(LATITUDE, LONGITUDE)));
 
   public CSVWithGeoPointBuilder() {
     this(new BasicFormatBuilder());
