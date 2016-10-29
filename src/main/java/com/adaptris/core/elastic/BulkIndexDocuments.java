@@ -4,6 +4,7 @@ import javax.validation.constraints.Min;
 
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
 
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.ProduceDestination;
@@ -47,7 +48,19 @@ public class BulkIndexDocuments extends IndexDocuments {
         int count = 0;
         for (DocumentWrapper doc : docs) {
           count++;
-          bulkRequest.add(transportClient.prepareIndex(index, type, doc.uniqueId()).setSource(doc.content()));
+          switch(doc.action()) {
+          case INDEX:
+            bulkRequest.add(transportClient.prepareIndex(index, type, doc.uniqueId()).setSource(doc.content()));
+            break;
+          case UPDATE:
+            bulkRequest.add(transportClient.prepareUpdate(index, type, doc.uniqueId()).setDoc(doc.content()));
+            break;
+          case DELETE:
+            bulkRequest.add(transportClient.prepareDelete(index, type, doc.uniqueId()));
+            break;
+          default:
+            throw new ProduceException("Unrecognized action: " + doc.action());
+          }
           if (count >= batchWindow()) {
             doSend(bulkRequest);
             count = 0;

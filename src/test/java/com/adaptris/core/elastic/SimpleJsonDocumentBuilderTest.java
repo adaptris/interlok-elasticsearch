@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.AdaptrisMessageFactory;
+import com.adaptris.core.elastic.DocumentWrapper.Action;
 import com.adaptris.core.services.splitter.CloseableIterable;
 import com.jayway.jsonpath.ReadContext;
 
@@ -25,6 +26,7 @@ public class SimpleJsonDocumentBuilderTest extends BuilderCase {
       for (DocumentWrapper doc : docs) {
         count++;
         assertEquals(msg.getUniqueId(), doc.uniqueId());
+        assertEquals(Action.INDEX, doc.action());
         ReadContext context = parse(doc.content().string());
         assertEquals("Hello World", context.read("$.content"));
         LinkedHashMap metadata = context.read("$.metadata");

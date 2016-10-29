@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.ProduceException;
+import com.adaptris.core.elastic.DocumentWrapper.Action;
 import com.adaptris.core.util.ExceptionHelper;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -50,7 +51,7 @@ public class SimpleDocumentBuilder implements ElasticDocumentBuilder {
       builder.field("metadata", filterIllegal(msg.getMessageHeaders()));
       builder.field("date", new Date());
       builder.endObject();
-      result.add(new DocumentWrapper(msg.getUniqueId(), builder));
+      result.add(new DocumentWrapper(Action.INDEX, msg.getUniqueId(), builder));
     }
     catch (Exception e) {
       throw ExceptionHelper.wrapProduceException(e);
