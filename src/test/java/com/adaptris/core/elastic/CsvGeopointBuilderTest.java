@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 
 import org.junit.Test;
@@ -49,7 +50,29 @@ public class CsvGeopointBuilderTest extends CsvBuilderCase {
   protected CSVWithGeoPointBuilder createBuilder() {
     return new CSVWithGeoPointBuilder();
   }
-
+  
+  @Test
+  public void testBuild_WithTimestamp() throws Exception {
+    AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(CSV_WITH_LATLONG);
+    CSVWithGeoPointBuilder documentBuilder = new CSVWithGeoPointBuilder();
+    documentBuilder.setAddTimestampField("My_Timestamp");
+    int count = 0;
+    try (CloseableIterable<DocumentWrapper> docs = ElasticSearchProducer.ensureCloseable(documentBuilder.build(msg))) {
+      for (DocumentWrapper doc : docs) {
+        count++;
+        ReadContext context = parse(doc.content().string());
+        assertEquals(Action.INDEX, doc.action());
+        assertEquals("UID-" + count, context.read(JSON_PRODUCTUNIQUEID));
+        assertTrue(Math.abs(((Long)context.read("$.My_Timestamp")-new Date().getTime()))<50);
+        LinkedHashMap map = context.read(JSON_LOCATION);
+        assertTrue(map.containsKey("lat"));
+        assertFalse("0".equals(map.get("lat").toString()));
+        assertTrue(map.containsKey("lon"));
+        assertFalse("0".equals(map.get("lon").toString()));
+      }
+    }
+    assertEquals(2, count);
+  }  
 
   @Test
   public void testBuild_WithLatLong() throws Exception {
