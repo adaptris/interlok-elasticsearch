@@ -13,7 +13,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 
 import com.adaptris.annotation.AdvancedConfig;
 import com.adaptris.annotation.InputFieldDefault;
-import com.adaptris.core.elastic.DocumentWrapper.Action;
 import com.adaptris.core.transform.csv.BasicFormatBuilder;
 import com.adaptris.core.transform.csv.FormatBuilder;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -43,10 +42,6 @@ public class CSVDocumentBuilder extends CSVDocumentBuilderImpl {
   @InputFieldDefault(value = "true")
   private Boolean useHeaderRecord;
 
-  @AdvancedConfig
-  @InputFieldDefault(value = "Delta_Status")
-  private String deltaStatusColumn;
-
   public CSVDocumentBuilder() {
     this(new BasicFormatBuilder());
   }
@@ -70,18 +65,6 @@ public class CSVDocumentBuilder extends CSVDocumentBuilderImpl {
 
   private boolean useHeaderRecord() {
     return getUseHeaderRecord() != null ? getUseHeaderRecord().booleanValue() : true;
-  }
-
-  public String getDeltaStatusColumn() {
-    return deltaStatusColumn;
-  }
-
-  public void setDeltaStatusColumn(String deltaStatusColumn) {
-    this.deltaStatusColumn = deltaStatusColumn;
-  }
-  
-  private String deltaStatusColumn() {
-    return getDeltaStatusColumn() != null ? getDeltaStatusColumn() : "Delta_Status";
   }
 
   @Override
@@ -111,25 +94,17 @@ public class CSVDocumentBuilder extends CSVDocumentBuilderImpl {
         else {
           throw new IllegalArgumentException("unique-id field > number of fields in record");
         }
-        Action action = Action.INDEX;
         String uniqueId = record.get(idField);
         XContentBuilder builder = jsonBuilder();
         builder.startObject();
         for (int i = 0; i < record.size(); i++) {
           String fieldName = headers.size() > 0 ? headers.get(i) : "field_" + i;
           String data = record.get(i);
-          if(fieldName.equals(deltaStatusColumn)) {
-            Action newAction = actionFromDeltaStatus(data);
-            if(newAction != null) {
-              action = newAction;
-            }
-          } else {
-            builder.field(fieldName, new Text(data));
-          }
+          builder.field(fieldName, new Text(data));
         }
         builder.endObject();
 
-        result = new DocumentWrapper(action, uniqueId, builder);
+        result = new DocumentWrapper(uniqueId, builder);
       }
       catch (IOException e) {
         throw new RuntimeException(e);
@@ -139,13 +114,4 @@ public class CSVDocumentBuilder extends CSVDocumentBuilderImpl {
     
   }
   
-  private static Action actionFromDeltaStatus(String deltaStatus) {
-    try {
-      int status = Integer.parseInt(deltaStatus);
-      return Action.values()[status];
-    } catch (NumberFormatException e) {
-      return null;
-    }
-  }
-
 }

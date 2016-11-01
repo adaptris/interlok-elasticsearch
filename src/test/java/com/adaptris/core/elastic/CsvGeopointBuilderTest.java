@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.AdaptrisMessageFactory;
-import com.adaptris.core.elastic.DocumentWrapper.Action;
 import com.adaptris.core.services.splitter.CloseableIterable;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.ReadContext;
@@ -61,7 +60,6 @@ public class CsvGeopointBuilderTest extends CsvBuilderCase {
       for (DocumentWrapper doc : docs) {
         count++;
         ReadContext context = parse(doc.content().string());
-        assertEquals(Action.INDEX, doc.action());
         assertEquals("UID-" + count, context.read(JSON_PRODUCTUNIQUEID));
         assertTrue(Math.abs(((Long)context.read("$.My_Timestamp")-new Date().getTime()))<50);
         LinkedHashMap map = context.read(JSON_LOCATION);
@@ -83,7 +81,6 @@ public class CsvGeopointBuilderTest extends CsvBuilderCase {
       for (DocumentWrapper doc : docs) {
         count++;
         ReadContext context = parse(doc.content().string());
-        assertEquals(Action.INDEX, doc.action());
         assertEquals("UID-" + count, context.read(JSON_PRODUCTUNIQUEID));
         LinkedHashMap map = context.read(JSON_LOCATION);
         assertTrue(map.containsKey("lat"));
@@ -108,7 +105,6 @@ public class CsvGeopointBuilderTest extends CsvBuilderCase {
       for (DocumentWrapper doc : docs) {
         count++;
         ReadContext context = parse(doc.content().string());
-        assertEquals(Action.INDEX, doc.action());
         assertEquals("UID-" + count, context.read(JSON_PRODUCTUNIQUEID));
         LinkedHashMap map = context.read("$.My_Location");
         assertTrue(map.containsKey("lat"));
@@ -129,7 +125,6 @@ public class CsvGeopointBuilderTest extends CsvBuilderCase {
       for (DocumentWrapper doc : docs) {
         count++;
         ReadContext context = parse(doc.content().string());
-        assertEquals(Action.values()[count-1], doc.action());
         assertEquals("UID-" + count, context.read(JSON_PRODUCTUNIQUEID));
         LinkedHashMap map = context.read(JSON_LOCATION);
         assertTrue(map.containsKey("lat"));
@@ -150,7 +145,6 @@ public class CsvGeopointBuilderTest extends CsvBuilderCase {
       for (DocumentWrapper doc : docs) {
         count++;
         ReadContext context = parse(doc.content().string());
-        assertEquals(Action.INDEX, doc.action());
         assertEquals("UID-" + count, context.read("$.productuniqueid"));
         try {
           LinkedHashMap map = context.read(JSON_LOCATION);
