@@ -3,7 +3,9 @@ package com.adaptris.core.elastic;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.ServiceException;
 import com.adaptris.util.KeyValuePairList;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+@XStreamAlias("elasticsearch-mapped-action")
 public class MappedAction implements ActionExtractor {
 
   private ActionExtractor action;

@@ -8,7 +8,9 @@ import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.ServiceException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+@XStreamAlias("elasticsearch-jsonpath-action")
 public class JsonPathAction implements ActionExtractor {
 
   @NotNull

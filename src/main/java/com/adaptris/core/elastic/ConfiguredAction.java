@@ -3,7 +3,9 @@ package com.adaptris.core.elastic;
 import javax.validation.constraints.NotNull;
 
 import com.adaptris.core.AdaptrisMessage;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+@XStreamAlias("elasticsearch-configured-action")
 public class ConfiguredAction implements ActionExtractor {
 
   @NotNull

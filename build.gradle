@@ -53,10 +53,10 @@ dependencies {
   compile ("org.slf4j:slf4j-api:$slf4jVersion")
   compile ("com.adaptris:adp-simple-csv:$adpCoreVersion") { changing=true}
   compile ("org.elasticsearch:elasticsearch:2.3.5")
+  compile ("com.jayway.jsonpath:json-path:2.2.0")
   
   testCompile ('junit:junit:4.11')
   testCompile ("com.adaptris:adp-stubs:$adpCoreVersion") { changing= true}
-  testCompile ("com.jayway.jsonpath:json-path:2.2.0")
   testCompile ("com.fasterxml.jackson.core:jackson-databind:2.7.0")
   
   javadoc("com.adaptris:adp-core-apt:$adpCoreVersion") { changing= true}
