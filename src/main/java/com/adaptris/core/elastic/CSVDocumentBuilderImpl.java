@@ -38,11 +38,16 @@ public abstract class CSVDocumentBuilderImpl implements ElasticDocumentBuilder {
   @Min(0)
   @InputFieldDefault(value = "0")
   private Integer uniqueIdField;
+  @AdvancedConfig
+  @NotNull
+  @Valid
+  private FieldNameMapper fieldNameMapper;
 
   protected transient Logger log = LoggerFactory.getLogger(this.getClass());
 
   public CSVDocumentBuilderImpl() {
     this(new BasicFormatBuilder());
+    setFieldNameMapper(new NoOpFieldNameMapper());
   }
 
   public CSVDocumentBuilderImpl(FormatBuilder f) {
@@ -102,6 +107,14 @@ public abstract class CSVDocumentBuilderImpl implements ElasticDocumentBuilder {
 
   protected abstract CSVDocumentWrapper buildWrapper(CSVParser parser);
   
+  public FieldNameMapper getFieldNameMapper() {
+    return fieldNameMapper;
+  }
+
+  public void setFieldNameMapper(FieldNameMapper fieldNameMapper) {
+    this.fieldNameMapper = Args.notNull(fieldNameMapper, "fieldNameMapper");
+  }
+
   protected abstract class CSVDocumentWrapper implements CloseableIterable<DocumentWrapper>, Iterator {
     protected CSVParser parser;
     protected Iterator<CSVRecord> csvIterator;

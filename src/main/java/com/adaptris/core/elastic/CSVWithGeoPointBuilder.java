@@ -54,8 +54,9 @@ public class CSVWithGeoPointBuilder extends CSVDocumentBuilderImpl {
   @InputFieldDefault(value = "location")
   private String locationFieldName;
 
+  @AdvancedConfig
   private String addTimestampField;
-
+  
   public CSVWithGeoPointBuilder() {
     this(new BasicFormatBuilder());
   }
@@ -153,7 +154,7 @@ public class CSVWithGeoPointBuilder extends CSVDocumentBuilderImpl {
           String fieldName = headers.size() > 0 ? headers.get(i) : "field_" + i;
           String data = record.get(i);
           if (!latLong.isLatOrLong(fieldName)) {
-            builder.field(fieldName, new Text(data));
+            builder.field(getFieldNameMapper().map(fieldName), new Text(data));
           }
         }
         latLong.addLatLong(builder, record);
@@ -194,7 +195,9 @@ public class CSVWithGeoPointBuilder extends CSVDocumentBuilderImpl {
       String latitude = record.get(lat);
       String longitude = record.get(lon);
       try {
-        builder.latlon(locationFieldName(), Double.valueOf(latitude).doubleValue(), Double.valueOf(longitude).doubleValue());
+        builder.latlon(
+            getFieldNameMapper().map(locationFieldName()), 
+            Double.valueOf(latitude).doubleValue(), Double.valueOf(longitude).doubleValue());
       }
       catch (NumberFormatException e) {
         // Ignore it, no chance of having a location, because the values aren't real latlongs.

@@ -93,6 +93,27 @@ public class CsvGeopointBuilderTest extends CsvBuilderCase {
   }
   
   @Test
+  public void testBuild_WithLatLongAndMapper() throws Exception {
+    AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(CSV_WITH_LATLONG);
+    CSVWithGeoPointBuilder documentBuilder = new CSVWithGeoPointBuilder();
+    documentBuilder.setFieldNameMapper(new ToUpperCaseFieldNameMapper());
+    int count = 0;
+    try (CloseableIterable<DocumentWrapper> docs = ElasticSearchProducer.ensureCloseable(documentBuilder.build(msg))) {
+      for (DocumentWrapper doc : docs) {
+        count++;
+        ReadContext context = parse(doc.content().string());
+        assertEquals("UID-" + count, context.read(JSON_PRODUCTUNIQUEID.toUpperCase()));
+        LinkedHashMap map = context.read(JSON_LOCATION.toUpperCase());
+        assertTrue(map.containsKey("lat"));
+        assertFalse("0".equals(map.get("lat").toString()));
+        assertTrue(map.containsKey("lon"));
+        assertFalse("0".equals(map.get("lon").toString()));
+      }
+    }
+    assertEquals(2, count);
+  }
+  
+  @Test
   public void testBuild_WithCustomLatLong() throws Exception {
     String payload = CSV_WITH_LATLONG.replace("latitude", "my_lat").replace("longitude", "my_lon");
     AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(payload);

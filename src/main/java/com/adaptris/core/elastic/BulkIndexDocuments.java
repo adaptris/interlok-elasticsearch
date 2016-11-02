@@ -1,5 +1,6 @@
 package com.adaptris.core.elastic;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -35,6 +36,7 @@ public class BulkIndexDocuments extends IndexDocuments {
   private Integer batchWindow;
   
   @AdvancedConfig
+  @Valid
   private ActionExtractor action;
 
   public BulkIndexDocuments() {
