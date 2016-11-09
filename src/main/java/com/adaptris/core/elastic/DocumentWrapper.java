@@ -2,7 +2,7 @@ package com.adaptris.core.elastic;
 
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
-class DocumentWrapper {
+public class DocumentWrapper {
 
   private final String uniqueId;
   private final XContentBuilder content;
@@ -12,11 +12,11 @@ class DocumentWrapper {
     this.content = content;
   }
   
-  XContentBuilder content() {
+  public XContentBuilder content() {
     return content;
   }
 
-  String uniqueId() {
+  public String uniqueId() {
     return uniqueId;
   }
 
