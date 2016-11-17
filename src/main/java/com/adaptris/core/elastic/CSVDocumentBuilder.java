@@ -42,7 +42,6 @@ public class CSVDocumentBuilder extends CSVDocumentBuilderImpl {
   @InputFieldDefault(value = "true")
   private Boolean useHeaderRecord;
 
-
   public CSVDocumentBuilder() {
     this(new BasicFormatBuilder());
   }
@@ -99,11 +98,12 @@ public class CSVDocumentBuilder extends CSVDocumentBuilderImpl {
         XContentBuilder builder = jsonBuilder();
         builder.startObject();
         for (int i = 0; i < record.size(); i++) {
-          String fieldName = headers.size() > 0 ? headers.get(i) : "field_" + i;
+          String fieldName = getFieldNameMapper().map(headers.size() > 0 ? headers.get(i) : "field_" + i);
           String data = record.get(i);
           builder.field(fieldName, new Text(data));
         }
         builder.endObject();
+
         result = new DocumentWrapper(uniqueId, builder);
       }
       catch (IOException e) {
@@ -111,8 +111,7 @@ public class CSVDocumentBuilder extends CSVDocumentBuilderImpl {
       }
       return result;
     }
-
+    
   }
-
-
+  
 }

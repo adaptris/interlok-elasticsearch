@@ -96,10 +96,10 @@ public class ElasticSearchConnection extends NoOpConnection {
   }
 
   protected void closeQuietly(TransportClient c) {
-    closeQuietly(c);
+    doClose(c);
   }
 
-  private static void closeQuietly(Releasable c) {
+  private static void doClose(Releasable c) {
     try {
       if (c != null) {
         c.close();

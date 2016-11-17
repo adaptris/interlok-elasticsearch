@@ -5,8 +5,10 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.csv.CSVParser;
@@ -14,6 +16,8 @@ import org.apache.commons.csv.CSVRecord;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
+import com.adaptris.annotation.AdvancedConfig;
+import com.adaptris.annotation.InputFieldDefault;
 import com.adaptris.core.transform.csv.BasicFormatBuilder;
 import com.adaptris.core.transform.csv.FormatBuilder;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -38,39 +42,92 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("elasticsearch-csv-geopoint-document-builder")
 public class CSVWithGeoPointBuilder extends CSVDocumentBuilderImpl {
 
-  private static final List<String> LATITUDE = Collections.unmodifiableList(Arrays.asList(new String[]
-  {
-      "latitude", "lat"
-  }));
-  private static final List<String> LONGITUDE = Collections.unmodifiableList(Arrays.asList(new String[]
-  {
-      "longitude", "lon",
-  }));
+  @AdvancedConfig
+  @InputFieldDefault(value = "latitude,lat")
+  private String latitudeFieldNames;
+  
+  @AdvancedConfig
+  @InputFieldDefault(value = "longitude,lon")
+  private String longitudeFieldNames;
+  
+  @AdvancedConfig
+  @InputFieldDefault(value = "location")
+  private String locationFieldName;
 
-  private static final List<String> LAT_OR_LONG =
-      Collections.unmodifiableList(new ArrayList<String>(CollectionUtils.union(LATITUDE, LONGITUDE)));
-
+  @AdvancedConfig
+  private String addTimestampField;
+  
   public CSVWithGeoPointBuilder() {
     this(new BasicFormatBuilder());
   }
 
   public CSVWithGeoPointBuilder(FormatBuilder f) {
     setFormat(f);
+  }  
+  
+  public String getLatitudeFieldNames() {
+    return latitudeFieldNames;
   }
 
+  public void setLatitudeFieldNames(String latitudeFieldNames) {
+    this.latitudeFieldNames = latitudeFieldNames;
+  }
+
+  private String latitudeFieldNames() {
+    return getLatitudeFieldNames() != null ? getLatitudeFieldNames() : "latitude,lat";
+  }
+  
+  public String getLongitudeFieldNames() {
+    return longitudeFieldNames;
+  }
+
+  public void setLongitudeFieldNames(String longitudeFieldNames) {
+    this.longitudeFieldNames = longitudeFieldNames;
+  }
+  
+  private String longitudeFieldNames() {
+    return getLongitudeFieldNames() != null ? getLongitudeFieldNames() : "longitude,lon";
+  }
+
+  public String getLocationFieldName() {
+    return locationFieldName;
+  }
+
+  public void setLocationFieldName(String locationFieldName) {
+    this.locationFieldName = locationFieldName;
+  }
+  
+  private String locationFieldName() {
+    return getLocationFieldName() != null ? getLocationFieldName() : "location";
+  }
+
+  public String getAddTimestampField() {
+    return addTimestampField;
+  }
+
+  public void setAddTimestampField(String addTimestampField) {
+    this.addTimestampField = addTimestampField;
+  }
+  
+  private String addTimestampField() {
+    return getAddTimestampField() != null ? getAddTimestampField() : null;
+  }
+  
   @Override
   protected CSVDocumentWrapper buildWrapper(CSVParser parser) {
-    return new MyWrapper(parser);
+    Set<String> latitudeFieldNames = new HashSet<String>(Arrays.asList(latitudeFieldNames().toLowerCase().split(",")));
+    Set<String> longitudeFieldNames = new HashSet<String>(Arrays.asList(longitudeFieldNames().toLowerCase().split(",")));
+    return new MyWrapper(latitudeFieldNames, longitudeFieldNames, parser);
   }
 
   private class MyWrapper extends CSVDocumentWrapper {
     private List<String> headers = new ArrayList<>();
     private LatLongHandler latLong;
 
-    public MyWrapper(CSVParser p) {
+    public MyWrapper(Set<String> latitudeFieldNames, Set<String> longitudeFieldNames, CSVParser p) {
       super(p);
       headers = buildHeaders(csvIterator.next());
-      latLong = new LatLongHandler(headers);
+      latLong = new LatLongHandler(latitudeFieldNames, longitudeFieldNames, headers);
     }
 
     @Override
@@ -88,11 +145,16 @@ public class CSVWithGeoPointBuilder extends CSVDocumentBuilderImpl {
         String uniqueId = record.get(idField);
         XContentBuilder builder = jsonBuilder();
         builder.startObject();
+        
+        if(addTimestampField() != null) {
+          builder.field(addTimestampField(), new Date().getTime());
+        }
+        
         for (int i = 0; i < record.size(); i++) {
           String fieldName = headers.size() > 0 ? headers.get(i) : "field_" + i;
-          if (!LAT_OR_LONG.contains(fieldName.toLowerCase())) {
-            String data = record.get(i);
-            builder.field(fieldName, new Text(data));
+          String data = record.get(i);
+          if (!latLong.isLatOrLong(fieldName)) {
+            builder.field(getFieldNameMapper().map(fieldName), new Text(data));
           }
         }
         latLong.addLatLong(builder, record);
@@ -105,18 +167,22 @@ public class CSVWithGeoPointBuilder extends CSVDocumentBuilderImpl {
       return result;
     }
   }
-
+  
   private class LatLongHandler {
-
+    
+    private final Set<String> latOrLongFieldNames;
+    
     private int lat = -1;
     private int lon = -1;
 
-    LatLongHandler(List<String> headers) {
+    LatLongHandler(Set<String> latitudeFieldNames, Set<String> longitudeFieldNames, List<String> headers) {
+      this.latOrLongFieldNames = new HashSet<String>(CollectionUtils.union(latitudeFieldNames, longitudeFieldNames));
+      
       for (int i = 0; i < headers.size(); i++) {
-        if (LATITUDE.contains(headers.get(i).toLowerCase())) {
+        if (latitudeFieldNames.contains(headers.get(i).toLowerCase())) {
           lat = i;
         }
-        if (LONGITUDE.contains(headers.get(i).toLowerCase())) {
+        if (longitudeFieldNames.contains(headers.get(i).toLowerCase())) {
           lon = i;
         }
       }
@@ -129,11 +195,17 @@ public class CSVWithGeoPointBuilder extends CSVDocumentBuilderImpl {
       String latitude = record.get(lat);
       String longitude = record.get(lon);
       try {
-        builder.latlon("location", Double.valueOf(latitude).doubleValue(), Double.valueOf(longitude).doubleValue());
+        builder.latlon(
+            getFieldNameMapper().map(locationFieldName()), 
+            Double.valueOf(latitude).doubleValue(), Double.valueOf(longitude).doubleValue());
       }
       catch (NumberFormatException e) {
         // Ignore it, no chance of having a location, because the values aren't real latlongs.
       }
+    }
+    
+    boolean isLatOrLong(String name) {
+      return latOrLongFieldNames.contains(name.toLowerCase());
     }
   }
 }

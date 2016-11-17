@@ -1,7 +1,10 @@
 ext {
-  adpCoreVersion = project.hasProperty('adpCoreVersion') ? project.getProperty('adpCoreVersion') : '3.4-SNAPSHOT'
-  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.4-SNAPSHOT'
+  adpCoreVersion = project.hasProperty('adpCoreVersion') ? project.getProperty('adpCoreVersion') : '3.5-SNAPSHOT'
+  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.5-SNAPSHOT'
   mavenPublishUrl = project.hasProperty('mavenPublishUrl') ? project.getProperty('mavenPublishUrl') : 'https://development.adaptris.net/nexus/content/repositories/snapshots'
+  repoUsername = project.hasProperty('repoUsername') ? project.getProperty('repoUsername') : 'unknown'
+  repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : 'unknown'
+  defaultNexusRepo = project.hasProperty('defaultNexusRepo') ? project.getProperty('defaultNexusRepo') : 'https://repo1.maven.org/maven2/'
   componentName='Interlok ElasticSearch Integration'
   slf4jVersion = '1.7.12'
 }
@@ -26,7 +29,7 @@ def versionDir = "$buildDir/version"
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-  maven { url "http://localhost:8081/content/groups/public" }
+  maven { url "$defaultNexusRepo" }
   maven { url "https://development.adaptris.net/nexus/content/groups/public" }
   maven {
     credentials {
@@ -53,12 +56,12 @@ dependencies {
   compile ("org.slf4j:slf4j-api:$slf4jVersion")
   compile ("com.adaptris:adp-simple-csv:$adpCoreVersion") { changing=true}
   compile ("org.elasticsearch:elasticsearch:2.3.5")
-  
+  compile ("com.jayway.jsonpath:json-path:2.2.0")
+
   testCompile ('junit:junit:4.11')
   testCompile ("com.adaptris:adp-stubs:$adpCoreVersion") { changing= true}
-  testCompile ("com.jayway.jsonpath:json-path:2.2.0")
   testCompile ("com.fasterxml.jackson.core:jackson-databind:2.7.0")
-  
+
   javadoc("com.adaptris:adp-core-apt:$adpCoreVersion") { changing= true}
 }
 

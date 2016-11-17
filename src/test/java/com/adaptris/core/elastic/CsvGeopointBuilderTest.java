@@ -1,9 +1,11 @@
 package com.adaptris.core.elastic;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 
 import org.junit.Test;
@@ -25,6 +27,16 @@ public class CsvGeopointBuilderTest extends CsvBuilderCase {
           + System.lineSeparator()
           + "UID-2,26N35S,Rape Winter,Fungicides,12,20150314,,200,Kilograms per Hectare,,0,52.71896363632868,-1.2391368098336788,233,217"
           + System.lineSeparator();
+  
+  public static final String CSV_WITH_LATLONG_AND_DELTA =
+      "productuniqueid,productname,crop,productcategory,applicationweek,operationdate,manufacturer,applicationrate,measureunit,growthstagecode,iscanonical,latitude,longitude,recordid,id,delta_status"
+          + System.lineSeparator()
+          + "UID-1,24-D Amine,Passion Fruit,Herbicides,19,20080506,,2.8,Litres per Hectare,,0,53.37969768091292,-0.18346963126415416,210,209,0"
+          + System.lineSeparator()
+          + "UID-2,26N35S,Rape Winter,Fungicides,12,20150314,,200,Kilograms per Hectare,,0,52.71896363632868,-1.2391368098336788,233,217,1"
+          + System.lineSeparator()
+          + "UID-3,26N35S,Rape Winter,Fungicides,12,20150314,,200,Kilograms per Hectare,,0,52.71896363632868,-1.2391368098336788,233,217,2"
+          + System.lineSeparator();
 
   public static final String CSV_WITHOUT_LATLONG =
       "productuniqueid,productname,crop,productcategory,applicationweek,operationdate,manufacturer,applicationrate,measureunit,growthstagecode,iscanonical,latitude,longitude,recordid,id"
@@ -37,7 +49,28 @@ public class CsvGeopointBuilderTest extends CsvBuilderCase {
   protected CSVWithGeoPointBuilder createBuilder() {
     return new CSVWithGeoPointBuilder();
   }
-
+  
+  @Test
+  public void testBuild_WithTimestamp() throws Exception {
+    AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(CSV_WITH_LATLONG);
+    CSVWithGeoPointBuilder documentBuilder = new CSVWithGeoPointBuilder();
+    documentBuilder.setAddTimestampField("My_Timestamp");
+    int count = 0;
+    try (CloseableIterable<DocumentWrapper> docs = ElasticSearchProducer.ensureCloseable(documentBuilder.build(msg))) {
+      for (DocumentWrapper doc : docs) {
+        count++;
+        ReadContext context = parse(doc.content().string());
+        assertEquals("UID-" + count, context.read(JSON_PRODUCTUNIQUEID));
+        assertTrue(Math.abs(((Long)context.read("$.My_Timestamp")-new Date().getTime()))<50);
+        LinkedHashMap map = context.read(JSON_LOCATION);
+        assertTrue(map.containsKey("lat"));
+        assertFalse("0".equals(map.get("lat").toString()));
+        assertTrue(map.containsKey("lon"));
+        assertFalse("0".equals(map.get("lon").toString()));
+      }
+    }
+    assertEquals(2, count);
+  }  
 
   @Test
   public void testBuild_WithLatLong() throws Exception {
@@ -51,10 +84,77 @@ public class CsvGeopointBuilderTest extends CsvBuilderCase {
         assertEquals("UID-" + count, context.read(JSON_PRODUCTUNIQUEID));
         LinkedHashMap map = context.read(JSON_LOCATION);
         assertTrue(map.containsKey("lat"));
+        assertFalse("0".equals(map.get("lat").toString()));
         assertTrue(map.containsKey("lon"));
+        assertFalse("0".equals(map.get("lon").toString()));
       }
     }
     assertEquals(2, count);
+  }
+  
+  @Test
+  public void testBuild_WithLatLongAndMapper() throws Exception {
+    AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(CSV_WITH_LATLONG);
+    CSVWithGeoPointBuilder documentBuilder = new CSVWithGeoPointBuilder();
+    documentBuilder.setFieldNameMapper(new ToUpperCaseFieldNameMapper());
+    int count = 0;
+    try (CloseableIterable<DocumentWrapper> docs = ElasticSearchProducer.ensureCloseable(documentBuilder.build(msg))) {
+      for (DocumentWrapper doc : docs) {
+        count++;
+        ReadContext context = parse(doc.content().string());
+        assertEquals("UID-" + count, context.read(JSON_PRODUCTUNIQUEID.toUpperCase()));
+        LinkedHashMap map = context.read(JSON_LOCATION.toUpperCase());
+        assertTrue(map.containsKey("lat"));
+        assertFalse("0".equals(map.get("lat").toString()));
+        assertTrue(map.containsKey("lon"));
+        assertFalse("0".equals(map.get("lon").toString()));
+      }
+    }
+    assertEquals(2, count);
+  }
+  
+  @Test
+  public void testBuild_WithCustomLatLong() throws Exception {
+    String payload = CSV_WITH_LATLONG.replace("latitude", "my_lat").replace("longitude", "my_lon");
+    AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(payload);
+    CSVWithGeoPointBuilder documentBuilder = new CSVWithGeoPointBuilder();
+    documentBuilder.setLatitudeFieldNames("My_Lat");
+    documentBuilder.setLongitudeFieldNames("My_Lon");
+    documentBuilder.setLocationFieldName("My_Location");
+    int count = 0;
+    try (CloseableIterable<DocumentWrapper> docs = ElasticSearchProducer.ensureCloseable(documentBuilder.build(msg))) {
+      for (DocumentWrapper doc : docs) {
+        count++;
+        ReadContext context = parse(doc.content().string());
+        assertEquals("UID-" + count, context.read(JSON_PRODUCTUNIQUEID));
+        LinkedHashMap map = context.read("$.My_Location");
+        assertTrue(map.containsKey("lat"));
+        assertFalse("0".equals(map.get("lat").toString()));
+        assertTrue(map.containsKey("lon"));
+        assertFalse("0".equals(map.get("lon").toString()));
+      }
+    }
+    assertEquals(2, count);
+  }
+  
+  @Test
+  public void testBuild_WithLatLongAndDelta() throws Exception {
+    AdaptrisMessage msg = AdaptrisMessageFactory.getDefaultInstance().newMessage(CSV_WITH_LATLONG_AND_DELTA);
+    CSVWithGeoPointBuilder documentBuilder = new CSVWithGeoPointBuilder();
+    int count = 0;
+    try (CloseableIterable<DocumentWrapper> docs = ElasticSearchProducer.ensureCloseable(documentBuilder.build(msg))) {
+      for (DocumentWrapper doc : docs) {
+        count++;
+        ReadContext context = parse(doc.content().string());
+        assertEquals("UID-" + count, context.read(JSON_PRODUCTUNIQUEID));
+        LinkedHashMap map = context.read(JSON_LOCATION);
+        assertTrue(map.containsKey("lat"));
+        assertFalse("0".equals(map.get("lat").toString()));
+        assertTrue(map.containsKey("lon"));
+        assertFalse("0".equals(map.get("lon").toString()));
+      }
+    }
+    assertEquals(3, count);
   }
 
   @Test

@@ -1,10 +1,13 @@
 package com.adaptris.core.elastic;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Min;
 
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
 
+import com.adaptris.annotation.AdvancedConfig;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.ProduceDestination;
 import com.adaptris.core.ProduceException;
@@ -31,11 +34,17 @@ public class BulkIndexDocuments extends IndexDocuments {
 
   @Min(0)
   private Integer batchWindow;
+  
+  @AdvancedConfig
+  @Valid
+  private ActionExtractor action;
 
   public BulkIndexDocuments() {
     super();
+    ConfiguredAction ca = new ConfiguredAction();
+    ca.setAction(DocumentAction.INDEX);
+    setAction(ca);
   }
-
 
   @Override
   protected AdaptrisMessage doRequest(AdaptrisMessage msg, ProduceDestination destination, long timeout) throws ProduceException {
@@ -47,7 +56,20 @@ public class BulkIndexDocuments extends IndexDocuments {
         int count = 0;
         for (DocumentWrapper doc : docs) {
           count++;
-          bulkRequest.add(transportClient.prepareIndex(index, type, doc.uniqueId()).setSource(doc.content()));
+          DocumentAction action = DocumentAction.valueOf(getAction().extract(msg, doc));
+          switch(action) {
+          case INDEX:
+            bulkRequest.add(transportClient.prepareIndex(index, type, doc.uniqueId()).setSource(doc.content()));
+            break;
+          case UPDATE:
+            bulkRequest.add(transportClient.prepareUpdate(index, type, doc.uniqueId()).setDoc(doc.content()));
+            break;
+          case DELETE:
+            bulkRequest.add(transportClient.prepareDelete(index, type, doc.uniqueId()));
+            break;
+          default:
+            throw new ProduceException("Unrecognized action: " + action);
+          }
           if (count >= batchWindow()) {
             doSend(bulkRequest);
             count = 0;
@@ -92,6 +114,16 @@ public class BulkIndexDocuments extends IndexDocuments {
 
   int batchWindow() {
     return getBatchWindow() != null ? getBatchWindow().intValue() : DEFAULT_BATCH_WINDOW;
+  }
+
+
+  public ActionExtractor getAction() {
+    return action;
+  }
+
+
+  public void setAction(ActionExtractor action) {
+    this.action = action;
   }
 
 }
