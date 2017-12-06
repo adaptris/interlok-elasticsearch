@@ -67,7 +67,7 @@ dependencies {
 
   testCompile ('junit:junit:4.11')
   testCompile ("com.adaptris:adp-stubs:$adpCoreVersion") { changing= true}
-  testCompile ("com.fasterxml.jackson.core:jackson-databind:2.7.0")
+  testCompile ("com.fasterxml.jackson.core:jackson-databind:2.8.10")
 
   javadoc("com.adaptris:adp-core-apt:$adpCoreVersion") { changing= true}
 }
