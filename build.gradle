@@ -61,7 +61,7 @@ configurations.all {
 dependencies {
   compile ("com.adaptris:interlok-core:$adpCoreVersion") { changing= true}
   compile ("org.slf4j:slf4j-api:$slf4jVersion")
-  compile ("com.adaptris:interlok-simple-csv:$adpCoreVersion") { changing=true}
+  compile ("com.adaptris:interlok-csv:$adpCoreVersion") { changing=true}
   compile ("org.elasticsearch:elasticsearch:2.3.5")
   compile ("com.jayway.jsonpath:json-path:2.2.0")
 
