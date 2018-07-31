@@ -61,7 +61,7 @@ dependencies {
   compile ("com.jayway.jsonpath:json-path:2.2.0")
   annotationProcessor ("com.adaptris:interlok-common:$interlokCoreVersion") {changing= true}
 
-  testCompile ('junit:junit:4.11')
+  testCompile ('junit:junit:4.12')
   testCompile ("com.adaptris:interlok-stubs:$interlokCoreVersion") { changing= true}
   testCompile ("com.fasterxml.jackson.core:jackson-databind:2.9.6")
 
