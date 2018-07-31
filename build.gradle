@@ -57,7 +57,7 @@ dependencies {
   compile ("com.adaptris:interlok-core:$interlokCoreVersion") { changing= true}
   compile ("org.slf4j:slf4j-api:$slf4jVersion")
   compile ("com.adaptris:interlok-csv:$interlokCoreVersion") { changing=true}
-  compile ("org.elasticsearch:elasticsearch:2.3.5")
+  compile ("org.elasticsearch:elasticsearch:6.3.2")
   compile ("com.jayway.jsonpath:json-path:2.2.0")
   annotationProcessor ("com.adaptris:interlok-common:$interlokCoreVersion") {changing= true}
 
