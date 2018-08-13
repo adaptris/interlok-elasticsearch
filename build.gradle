@@ -1,12 +1,13 @@
 ext {
-  adpCoreVersion = project.hasProperty('adpCoreVersion') ? project.getProperty('adpCoreVersion') : '3.7-SNAPSHOT'
-  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.7-SNAPSHOT'
+  interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.8-SNAPSHOT'
+  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.8-SNAPSHOT'
   mavenPublishUrl = project.hasProperty('mavenPublishUrl') ? project.getProperty('mavenPublishUrl') : 'https://development.adaptris.net/nexus/content/repositories/snapshots'
   repoUsername = project.hasProperty('repoUsername') ? project.getProperty('repoUsername') : 'unknown'
   repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : 'unknown'
   defaultNexusRepo = project.hasProperty('defaultNexusRepo') ? project.getProperty('defaultNexusRepo') : 'https://repo1.maven.org/maven2/'
-  interlokJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : 'https://development.adaptris.net/javadocs/latest/Interlok-API/'
-  interlokCommonJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : 'https://development.adaptris.net/javadocs/latest/Interlok-Common/'
+  javadocsBaseUrl = "https://development.adaptris.net/nexus/content/sites/javadocs/com/adaptris"
+  interlokJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : javadocsBaseUrl + "/interlok-core/" + interlokCoreVersion
+  interlokCommonJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : javadocsBaseUrl + "/interlok-common/" + interlokCoreVersion
   componentName='Interlok/ElasticSearch Integration'
   organizationName = "Adaptris Ltd"
   slf4jVersion = '1.7.25'
@@ -32,15 +33,9 @@ def versionDir = "$buildDir/version"
 
 // In this section you declare where to find the dependencies of your project
 repositories {
+  jcenter()
   maven { url "$defaultNexusRepo" }
   maven { url "https://development.adaptris.net/nexus/content/groups/public" }
-  maven {
-    credentials {
-      username repoUsername
-      password repoPassword
-    }
-    url "https://development.adaptris.net/nexus/content/groups/private"
-  }
   maven { url "https://development.adaptris.net/nexus/content/repositories/snapshots" }
   maven { url "https://development.adaptris.net/nexus/content/repositories/releases" }
 }
@@ -59,17 +54,18 @@ configurations.all {
 }
 
 dependencies {
-  compile ("com.adaptris:adp-core:$adpCoreVersion") { changing= true}
+  compile ("com.adaptris:interlok-core:$interlokCoreVersion") { changing= true}
   compile ("org.slf4j:slf4j-api:$slf4jVersion")
-  compile ("com.adaptris:adp-simple-csv:$adpCoreVersion") { changing=true}
+  compile ("com.adaptris:interlok-csv:$interlokCoreVersion") { changing=true}
   compile ("org.elasticsearch:elasticsearch:2.3.5")
-  compile ("com.jayway.jsonpath:json-path:2.2.0")
+  compile ("com.jayway.jsonpath:json-path:2.4.0")
+  annotationProcessor ("com.adaptris:interlok-common:$interlokCoreVersion") {changing= true}
 
-  testCompile ('junit:junit:4.11')
-  testCompile ("com.adaptris:adp-stubs:$adpCoreVersion") { changing= true}
-  testCompile ("com.fasterxml.jackson.core:jackson-databind:2.8.11.1")
+  testCompile ('junit:junit:4.12')
+  testCompile ("com.adaptris:interlok-stubs:$interlokCoreVersion") { changing= true}
+  testCompile ("com.fasterxml.jackson.core:jackson-databind:2.9.6")
 
-  javadoc("com.adaptris:adp-core-apt:$adpCoreVersion") { changing= true}
+  javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
 }
 
 
@@ -98,6 +94,8 @@ task generateVersion {
     ant.propertyfile(file: versionFile) {
       entry(key: 'component.name', value: componentName)
       entry(key: 'build.version', value: releaseVersion)
+      entry(key: 'groupId', value: project.group)
+      entry(key: 'artifactId', value: project.name)
       entry(key: 'build.date', value: new Date().format('yyyy-MM-dd'))
     }
   }
@@ -115,7 +113,7 @@ javadoc {
 }
 
 jacoco {
-  toolVersion="0.7.9"
+  toolVersion="0.8.1"
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -144,6 +142,9 @@ publishing {
         asNode().appendNode("description", "Connect and insert documents into ElasticSearch (version<5) using v2.3 of their API")
         def properties = asNode().appendNode("properties")
         properties.appendNode("externalUrl", "https://www.elastic.co/products/elasticsearch")
+        properties.appendNode("target", "3.4.1+")
+        properties.appendNode("tags", "elasticsearch")
+        properties.appendNode("license", "false")
       }
     }
   }
@@ -157,3 +158,5 @@ publishing {
     }
   }
 }
+
+check.dependsOn jacocoTestReport
