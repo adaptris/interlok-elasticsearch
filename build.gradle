@@ -63,7 +63,7 @@ dependencies {
 
   testCompile ('junit:junit:4.12')
   testCompile ("com.adaptris:interlok-stubs:$interlokCoreVersion") { changing= true}
-  testCompile ("com.fasterxml.jackson.core:jackson-databind:2.9.6")
+  testCompile ("com.fasterxml.jackson.core:jackson-databind:2.9.7")
 
   javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
 }
