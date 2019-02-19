@@ -13,7 +13,7 @@ ext {
   interlokCommonJavadocs= project.hasProperty('interlokCommonJavadocs') ? project.getProperty('interlokCommonJavadocs') : javadocsBaseUrl + "/interlok-common/" + interlokCoreVersion
   componentName='Interlok/ElasticSearch Integration'
   organizationName = "Adaptris Ltd"
-  slf4jVersion = '1.7.25'
+  slf4jVersion = '1.7.26'
 }
 
 if (JavaVersion.current().isJava8Compatible()) {
