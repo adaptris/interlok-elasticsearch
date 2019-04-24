@@ -133,7 +133,7 @@ javadoc {
 }
 
 jacoco {
-  toolVersion="0.8.1"
+  toolVersion="0.8.3"
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -165,6 +165,7 @@ publishing {
         properties.appendNode("target", "3.4.1+")
         properties.appendNode("tags", "elasticsearch")
         properties.appendNode("license", "false")
+        properties.appendNode("deprecated", "Consider migrating to interlok-es-rest; elasticsearch is old, and unsupported")        
       }
     }
   }
