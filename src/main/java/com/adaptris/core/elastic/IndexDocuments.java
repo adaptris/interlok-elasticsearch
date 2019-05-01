@@ -2,16 +2,14 @@ package com.adaptris.core.elastic;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.transport.TransportClient;
-
 import com.adaptris.annotation.AutoPopulated;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.ProduceDestination;
 import com.adaptris.core.ProduceException;
-import com.adaptris.core.services.splitter.CloseableIterable;
+import com.adaptris.core.util.CloseableIterable;
 import com.adaptris.core.util.ExceptionHelper;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
@@ -41,6 +39,7 @@ public class IndexDocuments extends ElasticSearchProducer {
     setDocumentBuilder(new SimpleDocumentBuilder());
   }
 
+  @Override
   public void produce(AdaptrisMessage msg, ProduceDestination destination) throws ProduceException {
     request(msg, destination, defaultTimeout());
   }

@@ -3,10 +3,9 @@ package com.adaptris.core.elastic;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
-
 import com.adaptris.core.CoreException;
 import com.adaptris.core.RequestReplyProducerImp;
-import com.adaptris.core.services.splitter.CloseableIterable;
+import com.adaptris.core.util.CloseableIterable;
 import com.adaptris.util.TimeInterval;
 
 /**
@@ -47,6 +46,7 @@ public abstract class ElasticSearchProducer extends RequestReplyProducerImp {
     // NOP
   }
 
+  @Override
   protected long defaultTimeout() {
     return TIMEOUT.toMilliseconds();
   }

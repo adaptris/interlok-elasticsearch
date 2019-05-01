@@ -1,12 +1,10 @@
 package com.adaptris.core.elastic;
 
 import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
-
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.AdaptrisMessageFactory;
-import com.adaptris.core.services.splitter.CloseableIterable;
+import com.adaptris.core.util.CloseableIterable;
 import com.jayway.jsonpath.ReadContext;
 
 public abstract class CsvBuilderCase extends BuilderCase {
