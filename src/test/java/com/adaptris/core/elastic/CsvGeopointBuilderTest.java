@@ -4,15 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
 import java.util.Date;
 import java.util.LinkedHashMap;
-
 import org.junit.Test;
-
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.AdaptrisMessageFactory;
-import com.adaptris.core.services.splitter.CloseableIterable;
+import com.adaptris.core.util.CloseableIterable;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.ReadContext;
 
@@ -61,7 +58,7 @@ public class CsvGeopointBuilderTest extends CsvBuilderCase {
         count++;
         ReadContext context = parse(doc.content().string());
         assertEquals("UID-" + count, context.read(JSON_PRODUCTUNIQUEID));
-        assertTrue(Math.abs(((Long)context.read("$.My_Timestamp")-new Date().getTime()))<50);
+        assertTrue(Math.abs((Long)context.read("$.My_Timestamp")-new Date().getTime())<50);
         LinkedHashMap map = context.read(JSON_LOCATION);
         assertTrue(map.containsKey("lat"));
         assertFalse("0".equals(map.get("lat").toString()));
