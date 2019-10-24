@@ -151,10 +151,6 @@ javadoc {
   }
 }
 
-jacoco {
-  toolVersion="0.8.3"
-}
-
 task javadocJar(type: Jar, dependsOn: javadoc) {
   classifier = 'javadoc'
   from javadoc.destinationDir
