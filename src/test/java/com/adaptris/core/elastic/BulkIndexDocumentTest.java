@@ -1,5 +1,6 @@
 package com.adaptris.core.elastic;
 
+import org.junit.Test;
 import com.adaptris.core.ConfiguredProduceDestination;
 import com.adaptris.core.ProducerCase;
 import com.adaptris.core.StandaloneProducer;
@@ -10,10 +11,11 @@ public class BulkIndexDocumentTest extends ProducerCase {
 
   private static final String EXAMPLE_COMMENT_HEADER = "\n<!--" + "\n-->\n";
 
-  public BulkIndexDocumentTest(String name) {
-    super(name);
+  @Override
+  public boolean isAnnotatedForJunit4() {
+    return true;
   }
-
+  @Test
   public void testNoOp() throws Exception {
 
   }
