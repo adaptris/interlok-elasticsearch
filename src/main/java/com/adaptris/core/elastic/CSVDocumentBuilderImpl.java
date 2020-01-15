@@ -1,6 +1,6 @@
 package com.adaptris.core.elastic;
 
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
