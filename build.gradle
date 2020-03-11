@@ -72,6 +72,8 @@ configurations {
   all*.exclude group: 'commons-logging'
   all*.exclude group: 'javamail'
   all*.exclude group: 'javax.mail', module: 'mail'
+  // INTERLOK-3197 exclude old javax.mail
+  all*.exclude group: 'com.sun.mail', module: 'javax.mail'
 }
 
 configurations.all {
