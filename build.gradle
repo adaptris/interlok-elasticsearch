@@ -5,7 +5,7 @@ plugins {
   id 'jacoco'
   // Manage optional dependencies in maven pom.
   id 'nebula.optional-base' version '5.0.3'
-  id 'com.github.spotbugs' version '3.0.0'
+  id 'com.github.spotbugs' version '4.0.5'
 }
 ext {
   interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.10-SNAPSHOT'
@@ -72,6 +72,11 @@ configurations {
   all*.exclude group: 'commons-logging'
   all*.exclude group: 'javamail'
   all*.exclude group: 'javax.mail', module: 'mail'
+  // INTERLOK-3197 exclude old javax.mail
+  all*.exclude group: 'com.sun.mail', module: 'javax.mail'
+  all*.exclude group: 'javax.validation', module: 'validation-api'
+  all*.exclude group: 'javax.activation', module: 'activation'
+  all*.exclude group: 'javax.activation', module: 'javax.activation-api'
 }
 
 configurations.all {
@@ -89,7 +94,7 @@ dependencies {
 
   testCompile ('junit:junit:4.13')
   testCompile ("com.adaptris:interlok-stubs:$interlokCoreVersion") { changing= true}
-  testCompile ("com.fasterxml.jackson.core:jackson-databind:2.10.2")
+  testCompile ("com.fasterxml.jackson.core:jackson-databind:2.10.3")
 
   javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
   offlineJavadocPackages ("com.adaptris:interlok-core:$interlokCoreVersion:javadoc@jar") { changing= true}
@@ -196,25 +201,30 @@ publishing {
     }
   }
 }
-spotbugs {
+
+spotbugsMain {
+  effort = "max"
+  reportLevel = "high"
   // showProgress = "true"
   effort = "max"
   // Ignore failures?
   // ignoreFailures = false
+  reports {
+    xml {
+      enabled = false
+    }
+    html {
+      enabled = true
+    }
+  }
+  includeFilter = new File("$rootDir/gradle/spotbugs-filter.xml")
+  excludeFilter = new File("$rootDir/gradle/spotbugs-exclude.xml")
 
-  // We only care about "high priority" issues...
-  reportLevel = "high"
 }
 
 // disable spotbugsTests which checks our test code..
 spotbugsTest.enabled = false
 
-tasks.withType(com.github.spotbugs.SpotBugsTask) {
-  reports {
-    xml.enabled = false
-    html.enabled = true
-  }
-}
 
 check.dependsOn jacocoTestReport
 javadoc.dependsOn offlinePackageList
