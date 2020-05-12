@@ -94,7 +94,7 @@ dependencies {
 
   testCompile ('junit:junit:4.13')
   testCompile ("com.adaptris:interlok-stubs:$interlokCoreVersion") { changing= true}
-  testCompile ("com.fasterxml.jackson.core:jackson-databind:2.10.3")
+  testCompile ("com.fasterxml.jackson.core:jackson-databind:2.11.0")
 
   javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
   offlineJavadocPackages ("com.adaptris:interlok-core:$interlokCoreVersion:javadoc@jar") { changing= true}
