@@ -100,7 +100,7 @@ dependencies {
     changing= true
     exclude group: "org.apache.logging.log4j"
   }
-  testCompile ("com.fasterxml.jackson.core:jackson-databind:2.11.0")
+  testCompile ("com.fasterxml.jackson.core:jackson-databind:2.11.1")
 
   javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
   offlineJavadocPackages ("com.adaptris:interlok-core:$interlokCoreVersion:javadoc@jar") { changing= true}
